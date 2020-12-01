@@ -36,3 +36,15 @@ def read_fna(filename):
     return input_data
 
 # find ORF
+def find_orf(seq):
+    stop_locations = []
+
+    for i in range(3,len(seq)+1,3):
+        window = seq[i-3:i]
+        
+        if window in STOP_CODON:
+            stop_locations.append(i)
+
+    stop_locations.insert(0,0)
+
+    return zip(stop_locations[:-1], stop_locations[1:])

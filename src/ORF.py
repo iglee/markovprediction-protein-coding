@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import re
+from collections import Counter
 
 STOP_CODON = ["TAA","TAG","TGA"]
 
@@ -51,11 +52,17 @@ def find_orf(seq):
 
 # markov model
 class MarkovModel:
-    def __init__(self):
+    def __init__(self, seq):
+        self.seq = seq
+        self.trimer_counts = None
         self.probs = None
+
+        # initialize with given input
+        self.count_trimers()
     
-    def count_codons(self):
-        return None
+    def count_trimers(self):
+        trimers = [self.seq[i-3:i] for i in range(3,len(self.seq)+1)]
+        self.trimer_counts = Counter(trimers)
 
     def calculate_probs(self):
         return None

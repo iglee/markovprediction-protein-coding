@@ -48,3 +48,14 @@ def find_orf(seq):
     stop_locations.insert(0,0)
 
     return zip(stop_locations[:-1], stop_locations[1:])
+
+# markov model
+class MarkovModel:
+    def __init__(self):
+        self.probs = None
+    
+    def count_codons(self):
+        return None
+
+    def calculate_probs(self):
+        return None

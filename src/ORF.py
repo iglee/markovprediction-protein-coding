@@ -54,6 +54,7 @@ def find_orf(seq):
 class MarkovModel:
     def __init__(self, seq):
         self.seq = seq
+        self.orfs = find_orf(seq)
         self.trimer_counts = None
         self.probs = None
 

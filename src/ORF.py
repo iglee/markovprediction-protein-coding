@@ -48,7 +48,10 @@ def find_orf(seq):
 
     stop_locations.insert(0,0)
 
-    return zip(stop_locations[:-1], stop_locations[1:])
+    idxs= list(zip(stop_locations[:-1], stop_locations[1:]))
+
+    return [seq[i:j-2] for i, j in idxs]
+
 
 # markov model
 class MarkovModel:
@@ -59,20 +62,34 @@ class MarkovModel:
         self.trusted_orfs = [x for x in self.orfs if len(x) >=1400]
 
         # counts
-        self.kmer_counts = None
-        self.kponemer_counts = None
-        self.probs = None
-
-        # initialize with given input
         self.kmer_counts = self.count_kmers(self.k)
         self.kponemer_counts = self.count_kmers(self.k+1)
-    
-    
+
+        self.probs = None
+
+
+    def generate_kmers(self, seq, k):
+        kmers = [seq[i-k:i] for i in range(k,len(seq)+1)]
+        return kmers
 
     def count_kmers(self, k):
-        kmers = [self.seq[i-k:i] for i in range(k,len(self.seq)+1)]
-        return Counter(kmers)
+        total_kmers = []
+        for x in self.trusted_orfs:
+            total_kmers += self.generate_kmers(x,k)
+            #print(total_kmers)
+
+        return Counter(total_kmers)
 
 
     def calculate_probs(self):
         return None
+
+def main():
+    data=read_fna("data/GCF_000091665.1_ASM9166v1_genomic.fna")
+    seq = data[0].sequence
+    mm = MarkovModel(5, seq)
+    print(mm.orfs[:5])
+    
+
+if __name__ == "__main__":
+    main()

@@ -52,18 +52,22 @@ def find_orf(seq):
 
 # markov model
 class MarkovModel:
-    def __init__(self, seq):
+    def __init__(self, k, seq):
         self.seq = seq
+        self.k = k
         self.orfs = find_orf(seq)
-        self.trimer_counts = None
+        self.kmer_counts = None
+        self.kponemer_counts = None
         self.probs = None
 
         # initialize with given input
-        self.count_trimers()
+        self.kmer_counts = self.count_kmers(self.k)
+        self.kponemer_counts = self.count_kmers(self.k+1)
     
-    def count_trimers(self):
-        trimers = [self.seq[i-3:i] for i in range(3,len(self.seq)+1)]
-        self.trimer_counts = Counter(trimers)
+    def count_kmers(self, k):
+        kmers = [self.seq[i-k:i] for i in range(k,len(self.seq)+1)]
+        return Counter(kmers)
+
 
     def calculate_probs(self):
         return None

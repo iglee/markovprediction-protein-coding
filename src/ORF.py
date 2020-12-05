@@ -56,6 +56,9 @@ class MarkovModel:
         self.seq = seq
         self.k = k
         self.orfs = find_orf(seq)
+        self.trusted_orfs = [x for x in self.orfs if len(x) >=1400]
+
+        # counts
         self.kmer_counts = None
         self.kponemer_counts = None
         self.probs = None
@@ -64,6 +67,8 @@ class MarkovModel:
         self.kmer_counts = self.count_kmers(self.k)
         self.kponemer_counts = self.count_kmers(self.k+1)
     
+    
+
     def count_kmers(self, k):
         kmers = [self.seq[i-k:i] for i in range(k,len(self.seq)+1)]
         return Counter(kmers)

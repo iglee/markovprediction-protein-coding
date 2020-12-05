@@ -65,3 +65,24 @@ def background_seqs(trusted_orfs):
         background.append(reverse_complements)
         
     return background
+
+class ORF:
+    def __init__(self, seq):
+        self.seq = seq
+        # for reading frame starting at index = 0 (or index = 1 in biology)
+        self.stop_idxs0, self.orf0 = find_orf(self.seq)
+        # for reading frame starting at index = 1 
+        self.stop_idxs1, self.orf1 = find_orf(self.seq[1:])
+        # for reading frame starting at index = 2
+        self.stop_idxs2, self.orf2 = find_orf(self.seq[2:])
+        # total orfs
+        self.total_orfs = None
+        # long orfs
+        self.long_orfs = None
+        # short orfs
+        self.short_orfs = None
+
+    def __repr__(self):
+        return "total number of orfs found: {} \
+            \nnumber of long orfs: {} \
+            \nnumber of short orfs: {} ".format(len(self.total_orfs), len(self.long_orfs), len(self.short_orfs))

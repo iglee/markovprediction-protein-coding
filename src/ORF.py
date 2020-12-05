@@ -4,6 +4,7 @@ import re
 from collections import Counter
 
 STOP_CODON = ["TAA","TAG","TGA"]
+COMPLEMENTS = {"A":"T","T":"A","C":"G","G":"C"}
 
 # organize input data into a class
 class GenomeData:
@@ -50,7 +51,20 @@ def find_orf(seq):
 
     idxs= list(zip(stop_locations[:-1], stop_locations[1:]))
 
-    return [seq[i:j-2] for i, j in idxs]
+    return idxs, [seq[i:j-3] for i, j in idxs]
+
+def background_seqs(trusted_orfs):
+
+    background = []
+    for x in trusted_orfs:
+        reversed_orf = x[::-1]
+        reverse_complements = ""
+        for y in reversed_orf:
+            reverse_complements += COMPLEMENTS[y]
+
+        background.append(reverse_complements)
+        
+    return background
 
 
 # markov model
@@ -58,8 +72,10 @@ class MarkovModel:
     def __init__(self, k, seq):
         self.seq = seq
         self.k = k
-        self.orfs = find_orf(seq)
+
+        self.stop_idxs, self.orfs = find_orf(self.seq)
         self.trusted_orfs = [x for x in self.orfs if len(x) >=1400]
+        self.backgrounds = background_seqs(self.trusted_orfs)
 
         # counts
         self.kmer_counts = self.count_kmers(self.k)
@@ -88,7 +104,8 @@ def main():
     data=read_fna("data/GCF_000091665.1_ASM9166v1_genomic.fna")
     seq = data[0].sequence
     mm = MarkovModel(5, seq)
-    print(mm.orfs[:5])
+    #print(mm.stop_idxs[:5])
+    #print(mm.orfs[:5])
     
 
 if __name__ == "__main__":

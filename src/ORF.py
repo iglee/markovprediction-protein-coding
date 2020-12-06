@@ -46,18 +46,23 @@ def find_stops(seq):
         
         if window in STOP_CODON:
             stop_locations.append(i)
-    return stop_locations
+    return np.array(stop_locations)
 
-# find orfs
-def find_orf(seq):
-    stop_locations = find_stops(seq)
+# calculate orf locations
+def orf_locations(seq, stop_locations, start_reading):
+    start_idxs = stop_locations + start_reading
+    stop_idxs = start_idxs - 3
+    start_idxs = np.insert(start_idxs, 0, [start_reading])
+    stop_idxs = np.append(stop_idxs, [len(seq)-1])
+    return list(zip(start_idxs, stop_idxs))
 
-    stop_locations.insert(0,0)
+# orf sequences
+def orf_seqs(seq, start_reading):
+    stop_locations = find_stops(seq[start_reading:])
+    orf_idxs = orf_locations(seq, stop_locations, start_reading)
+    return orf_idxs, [seq[i:j] for i, j in orf_idxs]
 
-    stop_idxs= list(zip(stop_locations[:-1], stop_locations[1:]))
-    seq_idxs = [(i, j-3) for i, j in stop_idxs if j-3 - i > 0]
 
-    return seq_idxs, [seq[i:j] for i, j in seq_idxs]
 
 def background_seqs(trusted_orfs):
 
@@ -76,17 +81,17 @@ class ORF:
     def __init__(self, seq):
         self.seq = seq
         # for reading frame starting at index = 0 (or index = 1 in biology)
-        self.idxs0, self.orf0 = find_orf(self.seq)
+        self.idxs0, self.orf0 = orf_seqs(seq, 0)
         # for reading frame starting at index = 1 
-        self.idxs1, self.orf1 = find_orf(self.seq[1:])
+        self.idxs1, self.orf1 = orf_seqs(seq, 1)
         # for reading frame starting at index = 2
-        self.idxs2, self.orf2 = find_orf(self.seq[2:])
+        self.idxs2, self.orf2 = orf_seqs(seq, 2)
         # total orfs
-        self.total_orfs = None
+        self.total_orfs = self.orf0 + self.orf1 + self.orf2
         # long orfs
-        self.long_orfs = None
+        self.long_orfs = [x for x in self.total_orfs if len(x) > 1400]
         # short orfs
-        self.short_orfs = None
+        self.short_orfs = [x for x in self.total_orfs if len(x) < 50]
 
     def __repr__(self):
         return "total number of orfs found: {} \

@@ -60,7 +60,7 @@ def orf_locations(seq, stop_locations, start_reading):
 def orf_seqs(seq, start_reading):
     stop_locations = find_stops(seq[start_reading:])
     orf_idxs = orf_locations(seq, stop_locations, start_reading)
-    return orf_idxs, [seq[i:j] for i, j in orf_idxs]
+    return orf_idxs, [seq[i:j] for i, j in orf_idxs if j-i > 0]
 
 
 
@@ -92,6 +92,8 @@ class ORF:
         self.long_orfs = [x for x in self.total_orfs if len(x) > 1400]
         # short orfs
         self.short_orfs = [x for x in self.total_orfs if len(x) < 50]
+        # calculate background orfs from long_orfs
+        self.background = background_seqs(self.long_orfs)
 
     def __repr__(self):
         return "total number of orfs found: {} \

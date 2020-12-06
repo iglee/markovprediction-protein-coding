@@ -10,13 +10,17 @@ class MarkovModel:
         self.seq = seq
         self.k = k
 
-
+        # orfs
         self.orfs = ORF(seq)
 
-        # counts
-        self.kmer_counts = self.count_kmers(self.k)
-        self.kponemer_counts = self.count_kmers(self.k+1)
+        # long orf counts
+        self.kmer_counts = self.count_kmers(self.k, self.orfs.long_orfs)
+        self.kponemer_counts = self.count_kmers(self.k+1, self.orfs.long_orfs)
         self.start_counts = self.count_starts()
+
+        # background sequences counts
+        self.bg_kmer_counts = self.count_kmers(self.k, self.orfs.background)
+        self.bg_kponemer_counts = self.count_kmers(self.k+1, self.orfs.background)
 
         self.probs = None
 
@@ -25,9 +29,9 @@ class MarkovModel:
         kmers = [seq[i-k:i] for i in range(k,len(seq)+1)]
         return kmers
 
-    def count_kmers(self, k):
+    def count_kmers(self, k, seq):
         total_kmers = []
-        for x in self.orfs.long_orfs:
+        for x in seq:
             total_kmers += self.generate_kmers(x,k)
 
         return Counter(total_kmers)

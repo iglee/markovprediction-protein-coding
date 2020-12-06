@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from collections import Counter
-from ORF import ORF, read_fna
+from .ORF import ORF, read_fna
 
 
 class MarkovModel:

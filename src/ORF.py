@@ -88,10 +88,13 @@ class ORF:
         self.idxs2, self.orf2 = orf_seqs(seq, 2)
         # total orfs
         self.total_orfs = self.orf0 + self.orf1 + self.orf2
+        self.all_orf_locations = self.idxs0 + self.idxs1 + self.idxs2
         # long orfs
-        self.long_orfs = [x for x in self.total_orfs if len(x) > 1400]
+        self.long_orfs = [x for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)> 1400]
+        self.long_orfs_location = [y for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)> 1400]
         # short orfs
-        self.short_orfs = [x for x in self.total_orfs if len(x) < 50]
+        self.short_orfs = [x for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)< 50]
+        self.short_orfs_location = [y for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)< 50]
         # calculate background orfs from long_orfs
         self.background = background_seqs(self.long_orfs)
 

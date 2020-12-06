@@ -53,7 +53,7 @@ def orf_locations(seq, stop_locations, start_reading):
     start_idxs = stop_locations + start_reading
     stop_idxs = start_idxs - 3
     start_idxs = np.insert(start_idxs, 0, [start_reading])
-    stop_idxs = np.append(stop_idxs, [len(seq)-1])
+    stop_idxs = np.append(stop_idxs, [len(seq)])
     return list(zip(start_idxs, stop_idxs))
 
 # orf sequences

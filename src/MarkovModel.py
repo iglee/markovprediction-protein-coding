@@ -12,9 +12,6 @@ class MarkovModel:
 
 
         self.orfs = ORF(seq)
-        #self.stop_idxs, self.orfs = find_orf(self.seq)
-        #self.trusted_orfs = [x for x in self.orfs if len(x) >=1400]
-        #self.backgrounds = background_seqs(self.trusted_orfs)
 
         # counts
         self.kmer_counts = self.count_kmers(self.k)

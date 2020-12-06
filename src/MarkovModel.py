@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from collections import Counter
-from .ORF import ORF, read_fna
+from ORF import ORF, read_fna
 
 
 class MarkovModel:
@@ -42,6 +42,23 @@ class MarkovModel:
             starts.append(x[0:self.k])
         return Counter(starts)
 
+    def print_count(self, counts):
+        nucleotides = list("ACGT")
+        df = pd.DataFrame(columns=nucleotides, index=nucleotides)
+
+        for x in nucleotides:
+            for y in nucleotides:
+                key = "AAG"+x+y+"T"
+                df[y][x] = counts[key]
+        
+        return str(df)
+
+    def __repr__(self):
+        return "ORFs Found: " + str(self.orfs) + "\n\n" + \
+            "P: count(AAGxyT): " + "\n" + self.print_count(self.kponemer_counts) + "\n" + \
+            "Q: count(AAGxyT): " + "\n" + self.print_count(self.bg_kponemer_counts)
+
+
     def calculate_probs(self):
         return None
 
@@ -53,6 +70,7 @@ def main():
     mm = MarkovModel(5, seq)
     #print(mm.stop_idxs[:5])
     #print(mm.orfs[:5])
+    print(mm)
     
 
 if __name__ == "__main__":

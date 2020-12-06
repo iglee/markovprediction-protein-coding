@@ -9,6 +9,7 @@ class MarkovModel:
     def __init__(self, k, seq):
         self.seq = seq
         self.k = k
+        self.pseudocount = 0.1
 
         # orfs
         self.orfs = ORF(seq)

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from collections import Counter
-from ORF import ORF, read_fna
+from OpenReadingFrame import ORF, read_fna
 
 
 class MarkovModel:
@@ -39,8 +39,8 @@ class MarkovModel:
 def main():
     data=read_fna("data/GCF_000091665.1_ASM9166v1_genomic.fna")
     seq = data[0].sequence
-    orf = ORF(seq)
-    #mm = MarkovModel(5, seq)
+    #orf = ORF(seq)
+    mm = MarkovModel(5, seq)
     #print(mm.stop_idxs[:5])
     #print(mm.orfs[:5])
     

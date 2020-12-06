@@ -37,8 +37,8 @@ def read_fna(filename):
 
     return input_data
 
-# find ORF
-def find_orf(seq):
+# find stop codons
+def find_stops(seq):
     stop_locations = []
 
     for i in range(3,len(seq)+1,3):
@@ -46,12 +46,18 @@ def find_orf(seq):
         
         if window in STOP_CODON:
             stop_locations.append(i)
+    return stop_locations
+
+# find orfs
+def find_orf(seq):
+    stop_locations = find_stops(seq)
 
     stop_locations.insert(0,0)
 
-    idxs= list(zip(stop_locations[:-1], stop_locations[1:]))
+    stop_idxs= list(zip(stop_locations[:-1], stop_locations[1:]))
+    seq_idxs = [(i, j-3) for i, j in stop_idxs if j-3 - i > 0]
 
-    return idxs, [seq[i:j-3] for i, j in idxs]
+    return seq_idxs, [seq[i:j] for i, j in seq_idxs]
 
 def background_seqs(trusted_orfs):
 
@@ -70,11 +76,11 @@ class ORF:
     def __init__(self, seq):
         self.seq = seq
         # for reading frame starting at index = 0 (or index = 1 in biology)
-        self.stop_idxs0, self.orf0 = find_orf(self.seq)
+        self.idxs0, self.orf0 = find_orf(self.seq)
         # for reading frame starting at index = 1 
-        self.stop_idxs1, self.orf1 = find_orf(self.seq[1:])
+        self.idxs1, self.orf1 = find_orf(self.seq[1:])
         # for reading frame starting at index = 2
-        self.stop_idxs2, self.orf2 = find_orf(self.seq[2:])
+        self.idxs2, self.orf2 = find_orf(self.seq[2:])
         # total orfs
         self.total_orfs = None
         # long orfs

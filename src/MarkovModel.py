@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from collections import Counter
-from OpenReadingFrame import ORF, read_fna
+from .ORF import ORF, read_fna
 
 
 class MarkovModel:
@@ -16,6 +16,7 @@ class MarkovModel:
         # counts
         self.kmer_counts = self.count_kmers(self.k)
         self.kponemer_counts = self.count_kmers(self.k+1)
+        self.start_counts = self.count_starts()
 
         self.probs = None
 
@@ -31,6 +32,11 @@ class MarkovModel:
 
         return Counter(total_kmers)
 
+    def count_starts(self):
+        starts = []
+        for x in self.orfs.long_orfs:
+            starts.append(x[0:self.k])
+        return Counter(starts)
 
     def calculate_probs(self):
         return None

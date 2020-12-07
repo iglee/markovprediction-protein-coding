@@ -60,7 +60,7 @@ def orf_locations(seq, stop_locations, start_reading):
 def orf_seqs(seq, start_reading):
     stop_locations = find_stops(seq[start_reading:])
     orf_idxs = orf_locations(seq, stop_locations, start_reading)
-    return orf_idxs, [seq[i:j] for i, j in orf_idxs if j-i > 0]
+    return [(i,j) for i, j in orf_idxs if j-i > 0], [seq[i:j] for i, j in orf_idxs if j-i > 0]
 
 
 

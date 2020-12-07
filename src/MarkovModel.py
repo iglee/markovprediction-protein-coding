@@ -3,7 +3,9 @@ import numpy as np
 import re
 from collections import Counter
 from .ORF import ORF, read_fna
+from math import log
 
+nucleotides = list("ACGT")
 
 class MarkovModel:
     def __init__(self, k, seq):
@@ -44,7 +46,7 @@ class MarkovModel:
         return Counter(starts)
 
     def print_count(self, counts):
-        nucleotides = list("ACGT")
+        
         df = pd.DataFrame(columns=nucleotides, index=nucleotides)
 
         for x in nucleotides:
@@ -60,17 +62,28 @@ class MarkovModel:
             "Q: count(AAGxyT): " + "\n" + self.print_count(self.bg_kponemer_counts)
 
 
-    def calculate_probs(self):
-        return None
+    def conditional_proba(self, token, kponemer_counts, kmer_counts):
+        return log(kponemer_counts[token] / kmer_counts[token[:-1]])
+
+    def sequence_proba(self, seq, kponemer_counts, kmer_counts):
+        logprob = 0 # initialize with start proba
+        for i in range(self.k,len(seq)+1):
+            logprob += self.conditional_proba(seq[i-self.k:i],kponemer_counts, kmer_counts)
+        return logprob
+        
 
 
 def main():
+    # test set
+    goldens = pd.read_csv("data/plusgenes-subset.gff", delimiter="\t", header=None)
+
+    # input data
     data=read_fna("data/GCF_000091665.1_ASM9166v1_genomic.fna")
     seq = data[0].sequence
-    #orf = ORF(seq)
+    
+    # markov model
     mm = MarkovModel(5, seq)
-    #print(mm.stop_idxs[:5])
-    #print(mm.orfs[:5])
+
     print(mm)
     
 

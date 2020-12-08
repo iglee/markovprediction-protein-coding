@@ -1,6 +1,8 @@
 import argparse
+import numpy as np
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 from MarkovModel import MarkovModel
 from ORF import ORF, read_fna
@@ -59,19 +61,42 @@ def check_match(end_idx):
 
 df_results["matches"] = df_results["end"].apply(lambda x: check_match(int(x)))
 
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
+
+def idx_nearest_match(df_results, col, thresholds):
+    accuracies = []
+
+    for t in thresholds:
+        acc= accuracy_score(df_results[col] > t, df_results["matches"])
+        accuracies.append(acc)
+    
+    return find_nearest(accuracies, 0.8)
+
+
+# plot things!
 def roc_len_score(fig, df_results):
     fpr, tpr, thresholds = roc_curve(df_results["matches"], df_results["score"])
     fpr_len, tpr_len, thresholds_len = roc_curve(df_results["matches"], df_results["length"])
 
+    idx_score = idx_nearest_match(df_results, "score", thresholds)
+    idx_len = idx_nearest_match(df_results, "length", thresholds_len)
+
+
     plt.plot(fpr, tpr, "g-", label="score")
-    plt.plot(fpr[64], tpr[64], "go", label="threshold at {}".format(thresholds[64]))
+    plt.plot(fpr[idx_score], tpr[idx_score], "go", label="threshold at {}".format(thresholds[idx_score]))
     plt.plot(fpr_len, tpr_len, "r-", label="length")
-    plt.plot(fpr_len[243], tpr_len[243], "r*", label="threshold at {}".format(thresholds_len[243]))
+    plt.plot(fpr_len[idx_len], tpr_len[idx_len], "r*", label="threshold at {}".format(thresholds_len[idx_len]))
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
     plt.title("ROC curves of Length and Markov Scores")
     plt.legend()
 
+def zoomin(fig, xlow, xhigh, ylow, yhigh):
+    plt.xlim(xlow,xhigh)
+    plt.ylim(ylow,yhigh)
 
 def scatter_len_score(fig, df_results):
     cmap = ["royalblue" if c else "firebrick" for c in df_results["matches"]]
@@ -83,3 +108,7 @@ def scatter_len_score(fig, df_results):
 fig = plt.figure()
 roc_len_score(fig, df_results)
 plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}.png".format(k, pseudo, longl, shortl))
+zoomin(fig, -0.02, 0.15, 0.75, 1.03)
+plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}_zoomed.png".format(k, pseudo, longl, shortl))
+
+

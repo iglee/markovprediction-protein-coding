@@ -116,8 +116,8 @@ def roc_len_score(fig, df_results, combined_results):
     plt.plot(fpr, tpr, "g-", label="score, auc = {}".format(auc))
     plt.plot(fpr[idx_score], tpr[idx_score], "go", label="threshold at {}".format(thresholds[idx_score]))
     plt.plot(fpr_len, tpr_len, "r-", label="length, auc = {}".format(auc_len))
-    plt.plot(fpr_len[idx_len], tpr_len[idx_len], "r*", label="threshold at {}".format(thresholds_len[idx_len]))
-    plt.plot(fpr_combined, tpr_combined, "b-", label="length, auc = {}".format(auc_combined))
+    plt.plot(fpr_len[idx_len], tpr_len[idx_len], "b*", label="threshold at {}".format(thresholds_len[idx_len]))
+    plt.plot(fpr_combined, tpr_combined, "b-", label="combined/flashbulb, auc = {}".format(auc_combined))
     plt.plot(fpr_combined[idx_combined], tpr_combined[idx_combined], "r*", label="threshold at {}".format(thresholds_len[idx_combined]))
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
@@ -180,10 +180,8 @@ def combine_mm_len(df_results, m, y_intercept):
         x = row[1]["length"]
 
         temp = (-1/m)*x-y_intercept
-        if row[1]["score"] > temp:
-            y_pred.append(True)
-        else:
-            y_pred.append(False)
+        y_pred.append(row[1]["score"]-temp)
+
     return y_pred
 
 combined_results = combine_mm_len(df_results, m, y_intercept)

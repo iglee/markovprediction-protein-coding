@@ -12,8 +12,8 @@ import pandas as pd
 parser = argparse.ArgumentParser()
 parser.add_argument("-longl", type=int, action="store")
 parser.add_argument("-shortl", type=int, action="store")
-parser.add_argument("-k", type=float, action="store")
-parser.add_argument("-pseudo", type=int, action="store")
+parser.add_argument("-k", type=int, action="store")
+parser.add_argument("-pseudo", type=float, action="store")
 args = parser.parse_args()
 
 if args.longl:
@@ -116,9 +116,9 @@ def roc_len_score(fig, df_results, combined_results):
     plt.plot(fpr, tpr, "g-", label="score, auc = {}".format(auc))
     plt.plot(fpr[idx_score], tpr[idx_score], "go", label="threshold at {}".format(thresholds[idx_score]))
     plt.plot(fpr_len, tpr_len, "r-", label="length, auc = {}".format(auc_len))
-    plt.plot(fpr_len[idx_len], tpr_len[idx_len], "b*", label="threshold at {}".format(thresholds_len[idx_len]))
+    plt.plot(fpr_len[idx_len], tpr_len[idx_len], "r*", label="threshold at {}".format(thresholds_len[idx_len]))
     plt.plot(fpr_combined, tpr_combined, "b-", label="combined/flashbulb, auc = {}".format(auc_combined))
-    plt.plot(fpr_combined[idx_combined], tpr_combined[idx_combined], "r*", label="threshold at {}".format(thresholds_len[idx_combined]))
+    plt.plot(fpr_combined[idx_combined], tpr_combined[idx_combined], "b*", label="threshold at {}".format(thresholds_combined[idx_combined]))
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
     plt.title("ROC curves of Length and Markov Scores")
@@ -168,7 +168,7 @@ def flashbulb(fig, df_results,r):
 
 
 fig = plt.figure()
-m, y_intercept = flashbulb(fig, df_results, 0.2)
+m, y_intercept = flashbulb(fig, df_results, 0.3)
 plt.savefig("output/decision_bdy.png")
 plt.close()
 
@@ -191,3 +191,5 @@ plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}.png".format(k, pseud
 zoomin(fig, -0.02, 0.15, 0.75, 1.03)
 plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}_zoomed.png".format(k, pseudo, longl, shortl))
 plt.close()
+
+print(mm)

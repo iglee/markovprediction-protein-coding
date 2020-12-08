@@ -38,6 +38,38 @@ def zoomin(fig, xlow, xhigh, ylow, yhigh):
     plt.xlim(xlow,xhigh)
     plt.ylim(ylow,yhigh)
 
+# range of long lengths
+longls = [400,800,1000,1200, 1400, 2000]
+fig = plt.figure()
+for longl in longls:
+    mm = MarkovModel(k=5, seq=seq, pseudocount=1, long_len=longl)
+    results = mm.results()
+    df_results = pd.DataFrame(results)
+    df_results["matches"] = df_results["end"].apply(lambda x: check_match(int(x)))
+    roc_len_score(fig, df_results, "long_len", longl)
+
+plt.savefig("output/longl_roc.png")
+zoomin(fig, -0.02, 0.15, 0.75, 1.03)
+plt.savefig("output/longl_roc_zoomed.png")
+plt.close()
+
+
+# range of short lengths
+shortls = [20,50,70,80,100]
+fig = plt.figure()
+for shortl in shortls:
+    mm = MarkovModel(k=5, seq=seq, pseudocount=1, short_len=shortl)
+    results = mm.results()
+    df_results = pd.DataFrame(results)
+    df_results["matches"] = df_results["end"].apply(lambda x: check_match(int(x)))
+    roc_len_score(fig, df_results, "short_len", shortl)
+
+plt.savefig("output/shortl_roc.png")
+zoomin(fig, -0.02, 0.15, 0.75, 1.03)
+plt.savefig("output/shortl_roc_zoomed.png")
+plt.close()
+
+
 
 # range of k to try
 ks = [3,4,5,6,7]
@@ -73,33 +105,3 @@ plt.savefig("output/p_roc_zoomed.png")
 plt.close()
 
 
-# range of long lengths
-longls = [800,1000,1200, 1400, 2000]
-fig = plt.figure()
-for longl in longls:
-    mm = MarkovModel(k=5, seq=seq, pseudocount=1, long_len=longl)
-    results = mm.results()
-    df_results = pd.DataFrame(results)
-    df_results["matches"] = df_results["end"].apply(lambda x: check_match(int(x)))
-    roc_len_score(fig, df_results, "long_len", longl)
-
-plt.savefig("output/longl_roc.png")
-zoomin(fig, -0.02, 0.15, 0.75, 1.03)
-plt.savefig("output/longl_roc_zoomed.png")
-plt.close()
-
-
-# range of short lengths
-shortls = [20,50,70,80,100]
-fig = plt.figure()
-for shortl in shortls:
-    mm = MarkovModel(k=5, seq=seq, pseudocount=1, short_len=shortl)
-    results = mm.results()
-    df_results = pd.DataFrame(results)
-    df_results["matches"] = df_results["end"].apply(lambda x: check_match(int(x)))
-    roc_len_score(fig, df_results, "short_len", shortl)
-
-plt.savefig("output/shortl_roc.png")
-zoomin(fig, -0.02, 0.15, 0.75, 1.03)
-plt.savefig("output/shortl_roc_zoomed.png")
-plt.close()

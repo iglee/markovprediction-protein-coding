@@ -14,6 +14,7 @@ parser.add_argument("-longl", type=int, action="store")
 parser.add_argument("-shortl", type=int, action="store")
 parser.add_argument("-k", type=int, action="store")
 parser.add_argument("-pseudo", type=float, action="store")
+parser.add_argument("-r", type=float, action="store")
 args = parser.parse_args()
 
 if args.longl:
@@ -35,6 +36,11 @@ if args.pseudo:
     pseudo = args.pseudo
 else:
     pseudo = 1
+
+if args.r:
+    r = args.r
+else:
+    r = 0.2
 
 # input data
 data=read_fna("data/GCF_000091665.1_ASM9166v1_genomic.fna")
@@ -148,6 +154,10 @@ def flashbulb(fig, df_results,r):
 
     #calculate perpendicular lines:
     xcross = Sx + r*(Lx - Sx)
+    #print(xcross)
+    #print(Lx,Ly)
+    #print(Sx,Sy)
+    #print(longl)
     ycross = m*xcross+b
     y_intercept = ycross - (1/m)*xcross
 
@@ -168,7 +178,7 @@ def flashbulb(fig, df_results,r):
 
 
 fig = plt.figure()
-m, y_intercept = flashbulb(fig, df_results, 0.3)
+m, y_intercept = flashbulb(fig, df_results, r)
 plt.savefig("output/decision_bdy.png")
 plt.close()
 

@@ -78,10 +78,10 @@ def background_seqs(trusted_orfs):
     return background
 
 class ORF:
-    def __init__(self, seq):
+    def __init__(self, seq, long_len=1400, short_len=50):
         self.seq = seq
-        self.long_len = 1400
-        self.short_len = 50
+        self.long_len = long_len
+        self.short_len = short_len
 
 
         # for reading frame starting at index = 0 (or index = 1 in biology)

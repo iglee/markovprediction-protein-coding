@@ -2,19 +2,19 @@ import pandas as pd
 import numpy as np
 import re
 from collections import Counter
-from .ORF import ORF, read_fna
+from ORF import ORF, read_fna
 from math import log
 
 nucleotides = list("ACGT")
 
 class MarkovModel:
-    def __init__(self, k, seq):
+    def __init__(self, k, pseudocount, seq, long_len=1400, short_len=50):
         self.seq = seq
         self.k = k
-        self.pseudocount = 1
+        self.pseudocount = pseudocount
 
         # orfs
-        self.orfs = ORF(seq)
+        self.orfs = ORF(seq, long_len, short_len)
 
         # long orf counts
         self.kmer_counts = self.count_kmers(self.k, self.orfs.long_orfs)
@@ -107,7 +107,7 @@ def main():
     seq = data[0].sequence
     
     # markov model
-    mm = MarkovModel(5, seq)
+    mm = MarkovModel(5, 1, seq)
 
     print(mm)
     

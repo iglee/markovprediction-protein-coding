@@ -65,17 +65,17 @@ class MarkovModel:
     def calculate_start_proba(self, start_counts, token, V):
         norm = sum(start_counts.values())
         if token not in start_counts:
-            return log(self.pseudocount/V)
+            return log(self.pseudocount/(self.pseudocount*V))
         else:
-            return log((start_counts[token] + self.pseudocount)/(norm + V))
+            return log((start_counts[token] + self.pseudocount)/(norm + self.pseudocount*V))
 
 
     def conditional_proba(self, token, kponemer_counts, kmer_counts, V):
         if token[:-1] not in kmer_counts and token not in kponemer_counts:
-            return log(self.pseudocount / V)
+            return log(self.pseudocount / (self.pseudocount*V))
         elif token[:-1] in kmer_counts and token not in kponemer_counts:
-            return log(self.pseudocount / (kmer_counts[token[:-1]] + V))
-        return log( (kponemer_counts[token] + self.pseudocount) / (kmer_counts[token[:-1]] + V) )
+            return log(self.pseudocount / (kmer_counts[token[:-1]] + self.pseudocount*V))
+        return log( (kponemer_counts[token] + self.pseudocount) / (kmer_counts[token[:-1]] + self.pseudocount*V) )
 
     def sequence_proba(self, seq, start_counts, kponemer_counts, kmer_counts):
         V = len(kmer_counts.keys())

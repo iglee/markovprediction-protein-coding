@@ -80,6 +80,10 @@ def background_seqs(trusted_orfs):
 class ORF:
     def __init__(self, seq):
         self.seq = seq
+        self.long_len = 1400
+        self.short_len = 50
+
+
         # for reading frame starting at index = 0 (or index = 1 in biology)
         self.idxs0, self.orf0 = orf_seqs(seq, 0)
         # for reading frame starting at index = 1 
@@ -90,11 +94,11 @@ class ORF:
         self.total_orfs = self.orf0 + self.orf1 + self.orf2
         self.all_orf_locations = self.idxs0 + self.idxs1 + self.idxs2
         # long orfs
-        self.long_orfs = [x for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)> 1400]
-        self.long_orfs_location = [y for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)> 1400]
+        self.long_orfs = [x for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)> self.long_len]
+        self.long_orfs_location = [y for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)> self.long_len]
         # short orfs
-        self.short_orfs = [x for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)< 50]
-        self.short_orfs_location = [y for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)< 50]
+        self.short_orfs = [x for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)< self.short_len]
+        self.short_orfs_location = [y for x,y in zip(self.total_orfs,self.all_orf_locations) if len(x)< self.short_len]
         # calculate background orfs from long_orfs
         self.background = background_seqs(self.long_orfs)
 

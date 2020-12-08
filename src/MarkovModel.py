@@ -19,14 +19,13 @@ class MarkovModel:
         # long orf counts
         self.kmer_counts = self.count_kmers(self.k, self.orfs.long_orfs)
         self.kponemer_counts = self.count_kmers(self.k+1, self.orfs.long_orfs)
-        self.V = len(self.kmer_counts.keys()) # normalization for add-1 smoothing, use total vocabulary count for unique kmers
-        self.start_counts = self.count_starts()
+        self.start_counts = self.count_starts(self.orfs.long_orfs)
 
         # background sequences counts
         self.bg_kmer_counts = self.count_kmers(self.k, self.orfs.background)
         self.bg_kponemer_counts = self.count_kmers(self.k+1, self.orfs.background)
+        self.bg_start_counts = self.count_starts(self.orfs.background)
 
-        self.start_probs = self.calculate_start_proba(self.start_counts)
 
 
     def generate_kmers(self, seq, k):
@@ -40,9 +39,9 @@ class MarkovModel:
 
         return Counter(total_kmers)
 
-    def count_starts(self):
+    def count_starts(self, seqs):
         starts = []
-        for x in self.orfs.long_orfs:
+        for x in seqs:
             starts.append(x[0:self.k])
         return Counter(starts)
 
@@ -63,29 +62,32 @@ class MarkovModel:
             "Q count(AAGxyT): " + "\n" + self.print_count(self.bg_kponemer_counts) 
 
 
-    def calculate_start_proba(self, start_counts):
+    def calculate_start_proba(self, start_counts, token, V):
         norm = sum(start_counts.values())
-        temp = start_counts.copy()
-        for key in temp:
-            temp[key] /= norm
-        return temp
+        if token not in start_counts:
+            return log(self.pseudocount/V)
+        else:
+            return log((start_counts[token] + self.pseudocount)/(norm + V))
 
-    def conditional_proba(self, token, kponemer_counts, kmer_counts):
+
+    def conditional_proba(self, token, kponemer_counts, kmer_counts, V):
         if token[:-1] not in kmer_counts and token not in kponemer_counts:
-            return log(self.pseudocount / self.V)
+            return log(self.pseudocount / V)
         elif token[:-1] in kmer_counts and token not in kponemer_counts:
-            return log(self.pseudocount / (kmer_counts[token[:-1]] + self.V))
-        return log( (kponemer_counts[token] + self.pseudocount) / (kmer_counts[token[:-1]] + self.V) )
+            return log(self.pseudocount / (kmer_counts[token[:-1]] + V))
+        return log( (kponemer_counts[token] + self.pseudocount) / (kmer_counts[token[:-1]] + V) )
 
-    def sequence_proba(self, seq, kponemer_counts, kmer_counts):
-        logprob = self.start_probs[seq[0:self.k]] # initialize with start proba
+    def sequence_proba(self, seq, start_counts, kponemer_counts, kmer_counts):
+        V = len(kmer_counts.keys())
+        logprob = self.calculate_start_proba(start_counts , seq[0:self.k], V)
+        
         for i in range(self.k+2,len(seq)+1):
-            logprob += self.conditional_proba(seq[i-self.k-1:i],kponemer_counts, kmer_counts)
+            logprob += self.conditional_proba(seq[i-self.k-1:i],kponemer_counts, kmer_counts, V)
         return logprob
         
     def score(self, seq):
-        P_score = self.sequence_proba(seq, self.kponemer_counts, self.kmer_counts)
-        Q_score = self.sequence_proba(seq, self.bg_kponemer_counts, self.bg_kmer_counts)
+        P_score = self.sequence_proba(seq, self.start_counts, self.kponemer_counts, self.kmer_counts)
+        Q_score = self.sequence_proba(seq, self.bg_start_counts, self.bg_kponemer_counts, self.bg_kmer_counts)
         return P_score - Q_score
 
 

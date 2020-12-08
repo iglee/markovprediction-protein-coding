@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+from statistics import median
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score
@@ -70,25 +71,54 @@ def idx_nearest_match(df_results, col, thresholds):
     accuracies = []
 
     for t in thresholds:
-        acc= accuracy_score(df_results[col] > t, df_results["matches"])
+        acc= accuracy_score(col > t, df_results["matches"])
         accuracies.append(acc)
     
     return find_nearest(accuracies, 0.8)
 
+# report things!
+print(mm.orfs)
+print("\nreading frame 3\n", "total number: ", len(mm.orfs.idxs0), "\n", \
+    " first: ", mm.orfs.idxs0[0], " (length of {})".format(len(mm.orfs.orf0[0])), "\n", \
+    " last: ", mm.orfs.idxs0[-1], " (length of {})".format(len(mm.orfs.orf0[-1])), "\n")
+print("reading frame 1\n", "total number: ", len(mm.orfs.idxs1), "\n", \
+    " first: ", mm.orfs.idxs1[0], " (length of {})".format(len(mm.orfs.orf1[0])), "\n", \
+    " last: ", mm.orfs.idxs1[-1], " (length of {})".format(len(mm.orfs.orf1[-1])), "\n")
+print("reading frame 2\n", "total number: ", len(mm.orfs.idxs2), "\n", \
+    " first: ", mm.orfs.idxs2[0], " (length of {})".format(len(mm.orfs.orf2[0])), "\n", \
+    " last: ", mm.orfs.idxs2[-1], " (length of {})".format(len(mm.orfs.orf2[-1])), "\n")
+print("total number of CDS strands: ", len(goldens[0]))
+
+long = df_results[df_results["length"] > longl]
+short = df_results[df_results["length"] < shortl]
+
+print("shortest orfs: ")
+print(short.sort_values("start")[:5])
+print("longest orfs: ")
+print(long.sort_values("start")[:5])
+
 
 # plot things!
-def roc_len_score(fig, df_results):
+def roc_len_score(fig, df_results, combined_results):
     fpr, tpr, thresholds = roc_curve(df_results["matches"], df_results["score"])
+    auc = roc_auc_score(df_results["matches"], df_results["score"])
     fpr_len, tpr_len, thresholds_len = roc_curve(df_results["matches"], df_results["length"])
+    auc_len = roc_auc_score(df_results["matches"], df_results["length"])
+    fpr_combined, tpr_combined, thresholds_combined = roc_curve(df_results["matches"], combined_results)
+    auc_combined = roc_auc_score(df_results["matches"], combined_results)
 
-    idx_score = idx_nearest_match(df_results, "score", thresholds)
-    idx_len = idx_nearest_match(df_results, "length", thresholds_len)
+
+    idx_score = idx_nearest_match(df_results, df_results["score"], thresholds)
+    idx_len = idx_nearest_match(df_results, df_results["length"], thresholds_len)
+    idx_combined = idx_nearest_match(df_results, combined_results, thresholds_combined)
 
 
-    plt.plot(fpr, tpr, "g-", label="score")
+    plt.plot(fpr, tpr, "g-", label="score, auc = {}".format(auc))
     plt.plot(fpr[idx_score], tpr[idx_score], "go", label="threshold at {}".format(thresholds[idx_score]))
-    plt.plot(fpr_len, tpr_len, "r-", label="length")
+    plt.plot(fpr_len, tpr_len, "r-", label="length, auc = {}".format(auc_len))
     plt.plot(fpr_len[idx_len], tpr_len[idx_len], "r*", label="threshold at {}".format(thresholds_len[idx_len]))
+    plt.plot(fpr_combined, tpr_combined, "b-", label="length, auc = {}".format(auc_combined))
+    plt.plot(fpr_combined[idx_combined], tpr_combined[idx_combined], "r*", label="threshold at {}".format(thresholds_len[idx_combined]))
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
     plt.title("ROC curves of Length and Markov Scores")
@@ -105,10 +135,61 @@ def scatter_len_score(fig, df_results):
     plt.ylabel("Markov Scores")
     plt.title("Length vs Markov scores, blue = gene, red = no gene")
 
+
+def flashbulb(fig, df_results,r):
+    long = df_results[df_results["length"] > longl]
+    short = df_results[df_results["length"] < shortl]
+    (Sx,Sy) = median(short["length"]),median(short["score"])
+    (Lx,Ly)=median(long["length"]), median(long["score"])
+
+    #calculate a line through the medians:
+    m=(Ly-Sy)/(Lx-Sx)
+    b=Ly-m*Lx
+
+    #calculate perpendicular lines:
+    xcross = Sx + r*(Lx - Sx)
+    ycross = m*xcross+b
+    y_intercept = ycross - (1/m)*xcross
+
+    # plot
+    scatter_len_score(fig, long)
+    scatter_len_score(fig, short)
+    plt.plot(median(short["length"]),median(short["score"]),"r*", 30)
+    plt.plot(median(long["length"]), median(long["score"]),"b*", 30)
+
+    ax = plt.axes()
+    x = np.linspace(-100,8000,1000)
+    ax.plot(x, m*x+b)
+    ax.plot(x, (-1/m)*x-y_intercept)
+
+    plt.xlim(-100, 8000)
+    plt.ylim(-100, 2500)
+    return m, y_intercept
+
+
 fig = plt.figure()
-roc_len_score(fig, df_results)
+m, y_intercept = flashbulb(fig, df_results, 0.2)
+plt.savefig("output/decision_bdy.png")
+plt.close()
+
+
+def combine_mm_len(df_results, m, y_intercept):
+    y_pred = []
+
+    for row in df_results.iterrows():
+        x = row[1]["length"]
+
+        temp = (-1/m)*x-y_intercept
+        if row[1]["score"] > temp:
+            y_pred.append(True)
+        else:
+            y_pred.append(False)
+    return y_pred
+
+combined_results = combine_mm_len(df_results, m, y_intercept)
+fig = plt.figure()
+roc_len_score(fig, df_results, combined_results)
 plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}.png".format(k, pseudo, longl, shortl))
 zoomin(fig, -0.02, 0.15, 0.75, 1.03)
 plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}_zoomed.png".format(k, pseudo, longl, shortl))
-
-
+plt.close()

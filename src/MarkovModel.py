@@ -106,7 +106,7 @@ class MarkovModel:
         return results
 
 def main():
-    # test set
+    # golden set (our dev set)
     goldens = pd.read_csv("data/plusgenes-subset.gff", delimiter="\t", header=None)
 
     # input data

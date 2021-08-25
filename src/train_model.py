@@ -53,7 +53,7 @@ else:
 data=read_fna("data/GCF_000091665.1_ASM9166v1_genomic.fna")
 seq = data[0].sequence
 
-# golden testset
+# golden set (out dev set)
 goldens = pd.read_csv("data/plusgenes-subset.gff", delimiter="\t", header=None)
 
 # markov model

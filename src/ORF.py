@@ -1,3 +1,6 @@
+# ORF class for
+# processing gene sequence data into long and short ORFs
+
 import pandas as pd
 import numpy as np
 import re
@@ -63,7 +66,9 @@ def orf_seqs(seq, start_reading):
     return [(i,j) for i, j in orf_idxs if j-i > 0], [seq[i:j] for i, j in orf_idxs if j-i > 0]
 
 
-
+# for background ORF calculation, we used reverse complement of the nucleotides
+# i.e. TAAGC -> reverse complement of ATTCG
+# nucleotide complement pattern specified as COMPLEMENTS
 def background_seqs(trusted_orfs):
 
     background = []

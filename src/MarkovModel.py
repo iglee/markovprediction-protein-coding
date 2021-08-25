@@ -1,3 +1,7 @@
+# implementation of kth order markov model
+# specifically for gene sequences (i.e. list of nucleotides)
+# probabilities calculated using conditional probabilities and MLE approximations
+
 import pandas as pd
 import numpy as np
 import re
@@ -61,7 +65,7 @@ class MarkovModel:
             "P count(AAGxyT): " + "\n" + self.print_count(self.kponemer_counts) + "\n" + \
             "Q count(AAGxyT): " + "\n" + self.print_count(self.bg_kponemer_counts) 
 
-
+    # initialize probability, MLE approximation assumptions described in equation (1), page 2 of pdf
     def calculate_start_proba(self, start_counts, token, V):
         norm = sum(start_counts.values())
         if token not in start_counts:
@@ -69,7 +73,7 @@ class MarkovModel:
         else:
             return log((start_counts[token] + self.pseudocount)/(norm + self.pseudocount*V))
 
-
+    # MLE approximated conditional probability and markov model probability calculation
     def conditional_proba(self, token, kponemer_counts, kmer_counts, V):
         if token[:-1] not in kmer_counts and token not in kponemer_counts:
             return log(self.pseudocount / (self.pseudocount*V))
@@ -85,10 +89,13 @@ class MarkovModel:
             logprob += self.conditional_proba(seq[i-self.k-1:i],kponemer_counts, kmer_counts, V)
         return logprob
         
+    # score by log likelihood: 
+    #   P score = ORF scored by markov probability
+    #   Q score = reverse complement of ORF scored by markov probability
     def score(self, seq):
         P_score = self.sequence_proba(seq, self.start_counts, self.kponemer_counts, self.kmer_counts)
         Q_score = self.sequence_proba(seq, self.bg_start_counts, self.bg_kponemer_counts, self.bg_kmer_counts)
-        return P_score - Q_score
+        return P_score - Q_score # since they're log probabilities, we subtract
 
 
     def results(self):

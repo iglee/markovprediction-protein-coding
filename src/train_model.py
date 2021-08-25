@@ -1,3 +1,10 @@
+# train the markov model
+# this training script is a binding, overview script to run:
+#   1. data loading
+#   2. process data into ORFs using ORF class
+#   3. run model training using MarkovModel class
+#   4. generate relevant plots
+
 import argparse
 import numpy as np
 from statistics import median
@@ -104,7 +111,7 @@ print("longest orfs: ")
 print(long.sort_values("start")[:5])
 
 
-# plot things!
+# plot things! the output of the functions below are shown in the pdf.
 def roc_len_score(fig, df_results, combined_results):
     fpr, tpr, thresholds = roc_curve(df_results["matches"], df_results["score"])
     auc = roc_auc_score(df_results["matches"], df_results["score"])
@@ -141,7 +148,8 @@ def scatter_len_score(fig, df_results):
     plt.ylabel("Markov Scores")
     plt.title("Length vs Markov scores, blue = gene, red = no gene")
 
-
+# this "flashbulb method" was a rough approximate method to combine length and markov model score for gene prediction
+# essentially identifies decision boundary plane of two features.
 def flashbulb(fig, df_results,r):
     long = df_results[df_results["length"] > longl]
     short = df_results[df_results["length"] < shortl]

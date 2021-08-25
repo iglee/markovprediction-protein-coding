@@ -13,7 +13,7 @@ Since a codon is a nucleotide triplet, we have 3 starting points, index 0, index
 
 In our model, we only segment at stop codons. Since there could be variations in terms of start codons, we consider only the stop codons and segment ORFs only at stop positions. i.e. previous stop position to current stop position = approximately one ORF.
 
-We'll be working with genome sequence of Methanococcus jannaschii, a microorganism from "White Smoker" hydrothermal vents shown below. Identified proteins from its genome sequence annotated by CDS data bank will be used as our golden set (caveat: this golden set is like a dev set since we use it to tune our model. this set is not a held-out test set. for a held-out test, we'd likely use anoter genome sequence).
+We'll be working with genome sequence of Methanococcus jannaschii, a microorganism from "White Smoker" hydrothermal vents shown below. Identified proteins from its genome sequence annotated by CDS data bank will be used as our golden set (caveat: this golden set is like a dev set since we use it to tune our model. this set is not a held-out test set. for a held-out test, we'd likely use another genome sequence).
 
 ![Methanococcus jannaschii](White_smoker.jpg)
 

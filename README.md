@@ -1,7 +1,8 @@
 # Prediction of protein coding genes using Markov Models
-Assignment for CSEP527 Computational Biology, HW5 (https://courses.cs.washington.edu/courses/csep527/20au/hw/hw5.html).
+Given an mRNA sequence, we'll identify portions of the sequence that produce protein using simple NLP technique, a Markov model.
 
-In this project, we try to identify 
+This was part of a course project for CSEP527 Computational Biology, HW5 (https://courses.cs.washington.edu/courses/csep527/20au/hw/hw5.html).
+
 
 ## Data and Identifying ORFs
 Open reading frames (ORFs) are part of the sequences of codons (nucleotide triplets) in our messenger RNA (mRNA) that might be translatable into proteins if the patterns match to real proteins. Given a sequence of codons as shown in the figure below, we could potentially identify ORFs by segmenting the data at "stop codons," which are TAA,TAG, and TGA.
@@ -33,10 +34,15 @@ Then, the log likelihood ratio of $P$ and $Q$ can be used to determine whether a
 For MLE approximation and assumptions of conditional probability calculation, please refer to the report HW5_MMs.pdf
 
 ## How to run
+
+The train model script will be used for training the markov model, as well as scoring against the test set and plotting results. The train script can be run as follows:
+
 ```
 python train_model.py -longl 1400 \
                       -shortl 50 \
                       -k 5 \
                       -pseudo 1
 ```
-For more details, please read the report HW5_MMs.pdf. The report contains run output, detailed MLE approximation calculations and assumptions, and plots.
+`longl` is the length of long ORF frames (i.e. in this case, ORF of length greater than 1400 is considered a long ORF), `shortl` is the length of short ORF frames (i.e. ORFs of length shorter than 50 is considered short ORF), `k` is the markov model parameter, and `pseudo` is the pseudocount added for MLE approximation of probability.
+
+For more details, please read the report HW5_MMs.pdf. The report contains run output, detailed MLE approximation calculations and assumptions, plots, and summary of results and findings.

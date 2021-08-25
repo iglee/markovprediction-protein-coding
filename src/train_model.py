@@ -1,5 +1,5 @@
 # train the markov model
-# this training script is a binding, overview script to run:
+# this training script is a wrapper script to run:
 #   1. data loading
 #   2. process data into ORFs using ORF class
 #   3. run model training using MarkovModel class

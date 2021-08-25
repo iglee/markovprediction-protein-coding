@@ -26,13 +26,13 @@ We'll use kth order Markov model for protein prediction. Markov models predict t
 
 $P(x) = P(x_1 x_2 x_3) * P(x_4 | x_1 x_2 x_3) * P(x_5 | x_2 x_3 x_4) ... P(x_n | x_{n-3} x_{n-2} x_{n-1})$
 
-Then, we can calculate the probability of given ORF sequences, denoted $P$, and compare with the probability of background, non-gene containing ORF, denoted $Q$. For a non-gene containing ORF, we arbitrarily set these "background" noise sequences to be reverse complement of the identified ORF. Reverse complement is a reverse of the complementary sequence of nucleotides, as shown below. (A is complement of T, G is complement of C).
+Then, we can calculate the probability of given ORF sequences, denoted $P$, and compare with the probability of background, non-protein containing ORF, denoted $Q$. For a non-protein containing ORF, we arbitrarily set these "background" noise sequences to be reverse complement of the identified ORF. Reverse complement is a reverse of the complementary sequence of nucleotides, as shown below. (A is complement of T, G is complement of C).
 
 ![reverse complement DNA](reverse.png)
 
 
 
-Then, the log likelihood ratio of $P$ and $Q$ can be used to determine whether an ORF contains a gene, listed in our golden set. The threshold for a protein match was determined by a combination of log likelihood and the length of ORFs, as longer ORFs are likely to contain a gene. The various values of thresholds are more rigorously determined by using ROC curves, plotted in the pdf report.
+Then, the log likelihood ratio of $P$ and $Q$ can be used to determine whether an ORF contains a protein, listed in our golden set. The threshold for a protein match was determined by a combination of log likelihood and the length of ORFs, as longer ORFs are likely to contain a protein. The various values of thresholds are more rigorously determined by using ROC curves, plotted in the pdf report.
 
 For detailed MLE approximation and assumptions of conditional probability calculation, please refer to the report HW5_MMs.pdf
 

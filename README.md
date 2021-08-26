@@ -41,7 +41,7 @@ For detailed MLE approximation and assumptions of conditional probability calcul
 The train model script will be used for training the markov model, as well as scoring against the golden set and plotting results. The train script can be run as follows:
 
 ```
-python train_model.py -longl 1400 \
+python src/train_model.py -longl 1400 \
                       -shortl 50 \
                       -k 5 \
                       -pseudo 1

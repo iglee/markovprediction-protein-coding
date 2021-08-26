@@ -89,7 +89,7 @@ def idx_nearest_match(df_results, col, thresholds):
     
     return find_nearest(accuracies, 0.8)
 
-# report things!
+# report things! below generates a quick orf start, end positions by reading frames. this serves as a quick sanity check too.
 print(mm.orfs)
 print("\nreading frame 3\n", "total number: ", len(mm.orfs.idxs0), "\n", \
     " first: ", mm.orfs.idxs0[0], " (length of {})".format(len(mm.orfs.orf0[0])), "\n", \
@@ -113,6 +113,8 @@ print(long.sort_values("start")[:5])
 
 # plot things! the output of the functions below are shown in the pdf.
 def roc_len_score(fig, df_results, combined_results):
+    """ plot the ROC curves. then, using ROC metrics and lengths, label the models at thresholds """
+    
     fpr, tpr, thresholds = roc_curve(df_results["matches"], df_results["score"])
     auc = roc_auc_score(df_results["matches"], df_results["score"])
     fpr_len, tpr_len, thresholds_len = roc_curve(df_results["matches"], df_results["length"])
@@ -151,6 +153,15 @@ def scatter_len_score(fig, df_results):
 # this "flashbulb method" was a rough approximate method to combine length and markov model score for gene prediction
 # essentially identifies decision boundary plane of two features.
 def flashbulb(fig, df_results,r):
+    """
+    given the plot of length vs. markov score, we first plot a line of short ORF median to long ORF median.
+    then, a bisection of these two medians at a perpendicular line becomes our decision boundary: protein or no protein
+    
+    --
+    input: fig to overlay on, output of scored ORFs in a dataframe format, r=parameters of bisection
+    output: return the perpendicular line (m = slope -> float, y_intercept -> float)
+    
+    """
     long = df_results[df_results["length"] > longl]
     short = df_results[df_results["length"] < shortl]
     (Sx,Sy) = median(short["length"]),median(short["score"])
@@ -160,7 +171,7 @@ def flashbulb(fig, df_results,r):
     m=(Ly-Sy)/(Lx-Sx)
     b=Ly-m*Lx
 
-    #calculate perpendicular lines:
+    #calculate perpendicular lines, i.e. thresholding boundary:
     xcross = Sx + r*(Lx - Sx)
     #print(xcross)
     #print(Lx,Ly)
@@ -192,6 +203,7 @@ plt.close()
 
 
 def combine_mm_len(df_results, m, y_intercept):
+    """ combine markov model score and length features and come up with 'final score' """
     y_pred = []
 
     for row in df_results.iterrows():
@@ -210,4 +222,4 @@ zoomin(fig, -0.02, 0.15, 0.75, 1.03)
 plt.savefig("output/roc_curve_k{}_pseudo{}_longl{}_shortl{}_zoomed.png".format(k, pseudo, longl, shortl))
 plt.close()
 
-print(mm)
+print(mm) # this will call repr method, which was formatted to print ORF kmer counts in markov model 
